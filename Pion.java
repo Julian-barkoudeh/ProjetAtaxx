@@ -1,6 +1,6 @@
 public class Pion extends Case {
     private int idJoueur;
-    public Pion(String couleur, int ord, int abs, int idJoueur ){
+    public Pion(Couleur couleur, int ord, int abs, int idJoueur ){
         super(couleur,ord, abs);
         this.idJoueur = idJoueur;
     }

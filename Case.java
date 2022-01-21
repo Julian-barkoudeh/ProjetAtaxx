@@ -1,33 +1,33 @@
 public class Case {
 
-    private String couleur;
-    private String couleurSelection;
+    private Couleur couleur;
+    private Couleur couleurSelection;
     private int ord;
     private int abs;
     
     public Case(int ord, int abs ){
-        couleur = "blanc";
-        this.couleurSelection = "black";
+        couleur = Couleur.NORMALE_BCK;
+        this.couleurSelection = Couleur.GRIS_FOR;
         this.ord = ord;
         this.abs = abs;
     }
-    public Case(String couleur, int ord, int abs ){
+    public Case(Couleur couleur, int ord, int abs ){
         this.couleur = couleur;
-        this.couleurSelection = "black";
+        this.couleurSelection = Couleur.GRIS_FOR;
         this.ord = ord;
         this.abs = abs;
     }
 
-    public void setCouleur(String c){
+    public void setCouleur(Couleur c){
         this.couleur  = c;
     }
-    public String getCouleur(){
+    public Couleur getCouleur(){
         return couleur;
     }
-    public String getCouleurSelection(){
+    public Couleur getCouleurSelection(){
         return couleurSelection;
     }
-    public void setCouleurSelection(String couleurSelection) {
+    public void setCouleurSelection(Couleur couleurSelection) {
         this.couleurSelection = couleurSelection;
     }
     public void setOrdAbs(int ord, int abs){

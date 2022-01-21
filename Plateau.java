@@ -15,15 +15,15 @@ public class Plateau {
 
         for(int i = 0; i<dimension; i++){
             for(int j = 0; j<dimension; j++){
-                board.get(i).add(j,new Case(" ", i, j));
+                board.get(i).add(j,new CaseVide(i, j));
             }
         }
     }
     public void initElements(){
-        board.get(0).set(0,new Pion("R", 0, 0,0));
-        board.get(0).set(dimension-1,new Pion("B", 0, dimension-1,1));
-        board.get(dimension-1).set(dimension-1,new Pion("R", dimension-1, dimension-1,0));
-        board.get(dimension-1).set(0,new Pion("B", dimension-1, 0,1));
+        board.get(0).set(0,new Pion(Couleur.ROUGE_BCK, 0, 0,0));
+        board.get(0).set(dimension-1,new Pion(Couleur.BLEU_BCK, 0, dimension-1,1));
+        board.get(dimension-1).set(dimension-1,new Pion(Couleur.ROUGE_BCK, dimension-1, dimension-1,0));
+        board.get(dimension-1).set(0,new Pion(Couleur.BLEU_BCK, dimension-1, 0,1));
 
         board.get(2).set(3, new Obstacle(2, 3));
         board.get(3).set(2, new Obstacle(3, 2));
@@ -36,24 +36,40 @@ public class Plateau {
         return board.get(ord).get(abs);
     }
     public void slecteCase(int ord, int abs){
-        board.get(ord).get(abs).setCouleurSelection("Jaune");
+        board.get(ord).get(abs).setCouleurSelection(Couleur.JAUNE_FOR);
         for(int i = ord-2; i<=ord+2; i++){
             for(int j = abs-2; j<=abs+2; j++){
-                if((i >=0 && i<dimension) && (j>= 0 && j< dimension)){
-                    if(!estObstacle(j, i) || (i != ord && j != abs)){
-                        if(caseEstProche(donnerCase(ord, abs), donnerCase(i, j))){
-                            donnerCase(i, j).setCouleurSelection("vert");
-                        }
-                        else if(caseEstDistante(donnerCase(ord, abs), donnerCase(i, j))){
-                            donnerCase(i, j).setCouleurSelection("magenta");
+                if(verifieCordonnee(i,j)){
+                    if(!caseEstObstacle(j, i)) {
+                        if(!(i == ord && j == abs)){
+                            if(caseEstProche(donnerCase(ord, abs), donnerCase(i, j))){
+                                donnerCase(i, j).setCouleurSelection(Couleur.VERT_FOR);
+                            }
+                            else if(caseEstDistante(donnerCase(ord, abs), donnerCase(i, j))){
+                                donnerCase(i, j).setCouleurSelection(Couleur.MAGENTA_FOR);
+                            }
                         }
                     }
                 }
             }
         }
     }
-    public boolean estObstacle(int ord, int abs){
+    public boolean verifieCordonnee(int i, int j){
+        if((i>=0 && i<dimension) && (j>=0 && j<dimension)){
+            return true;
+        }
+        //System.out.println("*** Error ***  : La case selectionnee ne respecte pas les dimensions");
+        return false;
+    }
+
+    public boolean caseEstObstacle(int ord, int abs){
         if(donnerCase(ord, abs).getClass().getName() == "Obstacle"){
+            return true;
+        }
+        return false;
+    }
+    public boolean caseEstVide(int ord, int abs){
+        if(donnerCase(ord, abs).getClass().getName() == "CaseVide"){
             return true;
         }
         return false;
@@ -61,36 +77,51 @@ public class Plateau {
     public void selecteCasesProximite(Case caseSelectione,Case caseProximite){
        
     }
-    public boolean caseEstProche(Case caseSelectione,Case caseProximite){
-        if(caseProximite.getAbs() <= caseSelectione.getAbs() -1 && caseProximite.getAbs() >= caseSelectione.getAbs() +1){
-            if(caseProximite.getOrd() <= caseSelectione.getOrd() -1 && caseProximite.getOrd() >= caseSelectione.getOrd() +1){
-                return false;
+    public boolean caseEstProche(Case caseSelectione,Case caseProximite){ 
+        if((caseProximite.getAbs() >= caseSelectione.getAbs() -1) && (caseProximite.getAbs() <= caseSelectione.getAbs() +1)){
+            if((caseProximite.getOrd() >= caseSelectione.getOrd() -1 ) && (caseProximite.getOrd() <= caseSelectione.getOrd() +1)){
+                return true;
             }
         }
         return false;
     }
     public boolean caseEstDistante(Case caseSelectione,Case caseProximite){
-        if(caseProximite.getAbs() <= caseSelectione.getAbs() -2 && caseProximite.getAbs() >= caseSelectione.getAbs() +2){
-            if(caseProximite.getOrd() <= caseSelectione.getOrd() -2 && caseProximite.getOrd() >= caseSelectione.getOrd() +2){
-                return false;
+        if(!caseEstProche(caseSelectione, caseProximite)){
+            if((caseProximite.getAbs() >= caseSelectione.getAbs() -2 )&& (caseProximite.getAbs() <= caseSelectione.getAbs() +2)){
+                if((caseProximite.getOrd() >= caseSelectione.getOrd() -2) && (caseProximite.getOrd() <= caseSelectione.getOrd() +2 )){
+                    return true;
+                }
             }
         }
         return false; 
     }
     
     public void deplacer(Pion p, int ord, int abs){
+        enlerverSelection(p.getOrd(),  p.getAbs());
         board.get(ord).set(abs,new Pion(p.getCouleur(), ord, abs, p.getIdJoueur()));
         if(caseEstDistante(p, donnerCase(ord, abs))){
-            board.get(p.getOrd()).set(p.getAbs(), new Case(ord, abs));
+            board.get(p.getOrd()).set(p.getAbs(), new CaseVide(p.getOrd(), p.getAbs()));
         }
     }
-    public void infecter(Pion p){
+    public void infecter(Pion p, Joueur joueur){
         for(int i = p.getOrd()-1; i<=p.getOrd()+1; i++){
             for(int j = p.getAbs()-1; j<=p.getAbs()+1; j++){
-                if(((i >=0 && i<dimension) && (j>= 0 && j< dimension))||(i != p.getOrd() && j != p.getAbs())){
-                    if(!estObstacle(j, i) && (donnerCase(i,j).getClass().getName() == "Pion")){
+                if(verifieCordonnee(i,j)){
+                    System.out.println("iciii 1");
+                    if((donnerCase(i,j).getClass().getName() == "Pion") && (donnerCase(i,j).getCouleur() != p.getCouleur())){
                        donnerCase(i, j).setCouleur(p.getCouleur());
+                       joueur.incrementerScore();
+                       System.out.println("iciii 2");
                     }
+                }
+            }
+        }
+    }
+    public void enlerverSelection(int ord, int abs){
+        for(int i = ord-2; i<=ord+2; i++){
+            for(int j = abs-2; j<=abs+2; j++){
+                if(verifieCordonnee(i,j)){
+                    donnerCase(i, j).setCouleurSelection(Couleur.GRIS_FOR);
                 }
             }
         }
@@ -99,15 +130,31 @@ public class Plateau {
     public void affichePlateau(){
         for(int i = 0; i<dimension; i++){
             for(int j = 0; j<dimension; j++){
-                System.out.print("[ "  + donnerCase(i, j).getCouleur() + "]   ");
+                System.out.print(Couleur.NORMALE_BCK);
+                System.out.print(donnerCase(i, j).getCouleurSelection() + "["  + donnerCase(i, j).getCouleur() + "  " + Couleur.NORMALE_BCK  +  donnerCase(i, j).getCouleurSelection() + "]   ");
+               
             }
             System.out.print("\n");
         } 
+        System.out.print("\n\n\n\n");
     }
     public  static void main (String [] args){
         Plateau p = new Plateau();
+        CaseVide c1 = new CaseVide(5, 6);
+        Pion pio = new Pion(Couleur.NORMALE_BCK, 6, 8,0);
+        Joueur j = new Joueur("bleu", Couleur.BLEU_BCK);
+        System.out.println(pio.getClass().getName() == c1.getClass().getName());
         p.affichePlateau();
-        p.deplacer((Pion) p.donnerCase(0,0), 1, 2);
+        p.deplacer((Pion) p.donnerCase(0,p.dimension-1), 2, 5);
+        p.slecteCase(2,5);
+        p.affichePlateau();
+        p.enlerverSelection(2,5);
+        p.affichePlateau();
+        p.deplacer((Pion) p.donnerCase(2, 5), 4, 5);
+        p.affichePlateau();
+        p.deplacer((Pion) p.donnerCase(4, 5), 5, 5);
+        p.affichePlateau();
+        p.infecter((Pion) p.donnerCase(5, 5), j);
         p.affichePlateau();
     }
 }
