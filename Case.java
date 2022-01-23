@@ -44,5 +44,8 @@ public class Case {
     public int getAbs(){
         return abs;
     }
+    public String toString(){
+        return couleurSelection + "[" + couleur + "   " + Couleur.NORMALE_BCK + "]    " + Couleur.NORMALE_FOR;
+    }
 
 }

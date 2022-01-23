@@ -1,14 +1,7 @@
 public class Pion extends Case {
-    private int idJoueur;
-    public Pion(Couleur couleur, int ord, int abs, int idJoueur ){
+    public Pion(Couleur couleur, int ord, int abs ){
         super(couleur,ord, abs);
-        this.idJoueur = idJoueur;
     }
-    public int getIdJoueur(){
-        return idJoueur;
-    }
-    public void setIdJoueur(int idJoueur) {
-        this.idJoueur = idJoueur;
-    }
+   
     
 }
